@@ -1,0 +1,89 @@
+Writing A Spotify Client in 16 Minutes
+    https://www.youtube.com/watch?v=XjKtkEMUYGc
+
+http://www.masteringemacs.org/
+
+http://www.emacswiki.org/emacs/Reference_Sheet_by_Aaron_Hawley
+
+very good explanation of (autoload):
+    http://www.lunaryorn.com/2014/07/02/autoloads-in-emacs-lisp.html
+
+C-h m           available major/minor modes and bindings
+C-h k           show the functions bound to a key sequence
+C-h f           show the key sequence(s) bound to a function
+M-x occur       regex-based outline!
+
+TERMINAL
+========
+synopsis of shell and terminal modes included in Emacs
+    https://lukeshu.com/blog/emacs-shells.html
+tips, env vars
+    http://snarfed.org/why_i_run_shells_inside_emacs
+
+http://www.reddit.com/r/emacs/comments/1p6m82/making_emacs_work_for_me/
+
+golang repl:
+    https://github.com/sergey-pashaev/gore-mode
+
+
+MODE HOOKS
+==========
+Mode hooks are like Vim ftplugins: allows you to execute arbitrary elisp for modes.
+For example:
+    (add-hook 'prog-mode-hook 'linum-on)
+`prog-mode-hook` is the generic hook that most programming modes are derived
+from (i.e. emacs-lisp-mode, c-mode....). If you add a function to
+`prog-mode-hook`, that function is executed in every mode derived from
+`prog-mode`. In this case, linum will be activated in every programming mode,
+but not modes like help-mode or dired-mode. So, file-types are _loosely_
+associated with major modes. Major modes are associated with _content_. I said
+"loosely" because you do not necessary use the code of a major mode with a file
+of a particular type; you can use it in any buffer. For example, you can
+activate `asm-mode` on a buffer that holds the output of the command `objdump`
+to have really nice highlighting and features of asm-mode. For example, you may
+want to enable smerge-mode in a buffer with merge conflict:
+    (defun enable-smerge ()
+      (save-excursion
+        (goto-char (point-min))
+        (when (re-search-forward "^<<<<<<< " nil t) ; search for conflict marking
+          (smerge-mode 1))))
+    (add-hook 'find-file-hook 'enable-smerge t)
+
+
+EMACS LISP
+==========
+[video] intro to emacs lisp (and ERC): http://emacsnyc.org/videos.html#2014-04
+
+show results in buffer, a la Light table:
+    <C-j> eval-print-last-sexp
+
+difference between define-key, evil-define-key:
+    (define-key evil-motion-state-local-map "a" 'foo)
+        ;binds "a" in the CURRENT BUFFER for ALL MODES
+    (evil-define-key 'motion foo-mode-map "a" 'foo)
+        ;binds "a" for ALL BUFFERS in ONLY THE SPECIFIED MODE
+
+'foo  means (quote foo)
+#'foo means (function foo)
+    - special form that returns a function-object without evaluating it
+    - converted into a closure if lexical binding is enabled
+    - in practice, you will probably never need #' in elisp
+    http://stackoverflow.com/questions/25275842/does-function-serve-any-purpose-in-emacs
+
+;; macroexpand expands the form until a non-macro is found, but
+;; it does _not_ inspect _sub_expressions in the resolved macro.
+;; http://www.chemie.fu-berlin.de/chemnet/use/info/elisp/elisp_13.html
+(defmacro inc (var)
+    (list 'setq var (list '1+ var)))
+    ;; => inc
+
+(macroexpand '(inc r))
+    ;; => (setq r (1+ r))
+
+(defmacro inc2 (var1 var2)
+    (list 'progn (list 'inc var1) (list 'inc var2)))
+    ;; => inc2
+
+(macroexpand '(inc2 r s))
+    ;; => (progn (inc r) (inc s))
+

@@ -1,0 +1,183 @@
+git svn clone "svn://foosrc/subdir" . -T trunk -b branches -t tags -r234:HEAD --ignore-path="foo(bar|baz).exe|^Chtulu/|.+\.(dll|jar)$"
+
+git svn init -s --ignore-path="foo" svn://foosrc/subdir
+git svn fetch -r123:HEAD
+
+GENERAL
+    add "--stat" option to any query command (stash show, log, diff) to get
+    file-by-file insertion/deletion counts.
+
+    #view every single commit in the repository ever
+    gitk --all $( git fsck --no-reflog | awk '/dangling commit/ {print $3}' )
+
+    # find last commit matching a regex
+    # example: show the last merge commit
+    $ git show :/^Merge
+
+    # git pickaxe -G option is greedier than -S and always accepts regex!
+    $ git log -G<regex>
+
+    # git grep can search any branch!
+    $ git grep foo <branch>
+
+    # `git show` is analogous to `cat`.  https://www.andyjeffries.co.uk/25-tips-for-intermediate-git-users/
+    # (and `git cat-file` is for opening objects)
+    git show master:flash/foo.fla > master-foo.fla
+
+RANGES (see: git help rev-parse > "Specifying ranges")
+    git log origin/master..
+        is equivalent to:
+    git log origin/master..HEAD
+
+    # "triple dot" diff shows the changes between alice/master and its merge
+    # base (COMMON ANCESTOR) with master. It won't include any changes that
+    # happened on master since the COMMON ANCESTOR (use "git merge-tree").
+    git diff master...alice/master
+
+    git merge-tree `git merge-base bob/master` master bob/master
+
+CONFIGURATION: ALIASES
+    ! runs at the root of the repo. To make ! commands relative to the current
+    directory, cd to $GIT_PREFIX:
+        git alias foo='!cd $GIT_PREFIX; foo -bar'
+    #Use GIT_TRACE=1 to make the alias processing transparent:
+    $ GIT_TRACE=1 git foo
+
+BRANCHING
+    git checkout -b new_branch [branch to track]
+
+    #list all branches (local and remote)
+    git branch -a
+
+    #find out which branch contains a commit
+    git branch -a --contains 50f3754
+
+    #move (rename) a branch
+    git branch -m smurf master
+
+MERGING
+    REBASE AND MERGE DON'T MIX!
+        http://stackoverflow.com/a/15153099/152142
+
+    git creates a "merge commit" because merges are intended to be _meaningful_.
+
+REBASING
+    #rebase the current branch onto the remote head
+    git svn rebase
+
+    #rebase the current branch onto master
+    git rebase master
+
+    #rebase onto the latest _remote_ commit on the current branch
+    #(this is sugar for  `git rebase @{u}` AKA `git rebase @{upstream}`)
+    git rebase
+
+INTERACTIVE REBASE (SELECTIVELY REMOVE OR EDIT COMMITS)
+    http://christoph.ruegg.name/blog/2010/5/5/git-howto-revert-a-commit-already-pushed-to-a-remote-reposit.html
+    #to remove a commit but keep all others, do an interactive rebase onto
+    #the parent of the offending commit:
+    git rebase -i dd61ab32^
+
+CLEANING UNTRACKED FILES (DELETED FROM INDEX AFTER A REBASE)
+    #dry run
+    git clean -n
+
+    #remove untracked files (not directories)
+    # f = force (not file)
+    git clean -f
+
+CREATING/APPLYING PATCHES
+    #create patch of current branch against master
+    git format-patch master --stdout > foo.patch
+
+    #create a "diff" patch from current uncommitted changes
+    git diff > result.patch
+
+    #summarize patch changes
+    git apply --stat foo.patch
+
+    #apply patch (dry run)
+    git apply --check foo.patch
+
+    #apply "format-patch" patch (with signoff); .rej files for any conflicts
+    git am --reject --ignore-whitespace --signoff < foo.patch
+
+
+TEMPORARILY IGNORING FILES (cf. svn's "ignore-on-commit")
+    #shelve current changes
+    git stash save "foo"
+
+    #apply ALL shelved changesets
+    git stash apply
+
+    #list shelved changesets
+    git stash list
+
+    #apply a specific changeset from the list...
+    git stash apply stash@{1}
+
+ADD A SVN REMOTE MANUALLY: http://stackoverflow.com/q/296975/152142
+        note: {new_branch} must not begin with a number
+    git config --add svn-remote.{new_branch}.url https://svn/path/to/new_branch/
+    git config --add svn-remote.{new_branch}.fetch :refs/remotes/{new_branch}
+    git svn fetch {new_branch} [-r<rev>]
+    git checkout -b {new_local_branch} -t {new_branch}
+    git svn rebase {new_local_branch}
+
+REMOTES
+    # print fetch/push URLs
+    git remote -v
+
+    # show details about <remote> (incl. local tracking branches)
+    git remote show <remote>
+
+    git remote add <name> git://<ip-address>/<directory-containing-.git>
+    git remote add smurf ssh://user@<HOST_IP>:9999/~/.git
+
+VIRTUALBOX CONFIGURATION
+    * in guest host:
+        $ sudo ip link set dev ethX down
+        $ sudo dhclient ethX
+    * set Network to "NAT"
+    * set port forwarding 
+    * to ssh to guest, target the HOST ip + fowarded port and VB will route it
+    * on your dev box, add a remote pointing to HOST_IP:VIRTUALBOX_FORWARDED_PORT
+        $ git remote add vbox ssh://user@<HOST_IP>:9999/~/.git
+
+REBASING ONTO NON-SVN REMOTES
+    git pull marco marcos_local_branch
+
+PUSH LOCAL BRANCH TO REMOTE BRANCH
+    git push remote_alias local_branch:remote_branch
+
+GITHUB: FETCH PULL REQUESTS AS LOCAL REFERENCES: https://help.github.com/articles/checking-out-pull-requests-locally
+
+    [remote "origin"]
+        fetch = +refs/pull/*/head:refs/pull/origin/*
+                ^^                ^
+                ||                local ref pattern
+                |remote ref pattern
+                update references even if they aren't fast-forwards
+
+MERGING, REBASING, SVN
+    #preserve author in dcommit
+
+     http://keithp.com/blogs/Repository_Formats_Matter/
+     subversion repository format is poorer than the git one. It doesn't support merging well, or committers vs authors or commit times distinct from push times
+
+     options that are good for small batches, but fall over on large batches:
+        [rerere]
+            enabled = 1
+        [merge]
+            # disable renameLimit  http://stackoverflow.com/a/13118734/152142
+            renameLimit = 0
+
+GIT INTERNALS: http://git-scm.com/book/en/Git-Internals-Plumbing-and-Porcelain
+    Git is a content-addressable filesystem with a VCS UI written on top of it.
+
+    core parts of Git:
+    .git/
+        HEAD        points to the current branch
+        index       stores staging area information
+        objects/    stores all database content
+        refs/       stores pointers (branches) to commit objects in objects/
