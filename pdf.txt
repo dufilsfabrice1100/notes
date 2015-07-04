@@ -1,0 +1,15 @@
+
+
+Processing PDF with JAVA. 
+
+
+More Low Level
+http://itextpdf.com/tutorial_RUPS
+
+
+http://pdfbox.apache.org/1.8/cookbook/textextraction.html
+
+Android. 
+
+Changing contrast
+
