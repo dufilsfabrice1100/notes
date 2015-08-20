@@ -1,0 +1,35 @@
+
+# REST 
+
+    * Easy to Use
+
+## Alternative : 
+    
+    * SOAP
+    * WSDL : Web Service Description Language
+
+* Set of architectural principles
+* focus on resources including state
+* Client Technologie independant
+
+## REST Boilerplate 
+
+* Use HTTP methods explicitly
+* Be stateless
+* Expose directory struture-like URIs 
+* Transfer XML, JSON or both. 
+
+** SideNote: GET, PUT ... etc RFC 2616 ** 
+
+
+* REST is base on CRUD 
+
+    * C : Create resource on the server. Use POST
+    * R : Retrieve resource . Use GET
+    * U : Update resource, or change his state . Use PUT
+    * D : Delete resource. Use DELETE
+
+
+
+
+
