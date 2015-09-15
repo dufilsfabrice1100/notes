@@ -1,0 +1,56 @@
+
+# MFA 
+
+## MFA Use case 
+
+* Augmenting Active Directory or similar login to local network
+* Providing strong identity verification to third-party web-services,
+  such as Salesforce.com or Google Docs, using Security Assertion Markup
+  language ( SAML ) standards,
+* Augmenting Web Server logins directly, usch as website or web-enabled
+  applications such as Outlook Web App. 
+
+# Scenario 3 : Web server Authentication
+
+## Jetzige Loesungen
+
+### EMC RSA Authentication Manager
+http://www.emc.com/security/rsa-securid/rsa-authentication-manager.htm
+
+### Symantec Verisign VIP:
+    Symantec Validation and ID Protection Service
+    http://www.symantec.com/vip-authentication-service/renewals-upgrades-licensing/
+
+### CA 
+    http://www.ca.com/us/securecenter/ca-strong-authentication.aspx
+
+### Vasco 
+    https://www.vasco.com/products/pack_products/pack_identikey/digipass_pack_with_identikey.aspx
+
+
+All four are solid MFA tools that have been around for years and can handle a 
+wide variety of situations, token types and applications; and all come in both cloud and 
+on-premises versions, although there are some differences in labeling and packaging.
+
+
+
+
+
+
+
+----------------- Extra
+
+
+
+http://searchsecurity.techtarget.com/feature/The-fundamentals-of-MFA-Comparing-the-top-multifactor-authentication-products
+SAML (Security Assertion Markup Language): is an Extensible Markup Language 
+(XML) standard that allows a user to log on once for affiliated but separate 
+Web sites. SAML is designed for business-to-business (B2B) and business-to-consumer 
+(B2C) transactions.
+
+
+Security Token : 
+
+ A security token is a physical device, such as a special smart card , 
+ that together with something that a user knows, such as a PIN , will enable 
+ authorized access to a computer system or network.
